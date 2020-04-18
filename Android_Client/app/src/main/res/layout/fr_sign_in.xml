@@ -10,29 +10,29 @@
         android:id="@+id/sign_in_pager"
         android:layout_width="match_parent"
 
-        android:layout_height="250dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_height="286dp"
+
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.491"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
 
-        app:layout_constraintVertical_bias="0.18">
+        >
 
 
     </android.support.v4.view.ViewPager>
 
-    <com.example.lost_animals.custom_views.GoogleButton
-        android:id="@+id/button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="180dp"
-        android:background="@drawable/google_sign_in_button"
-        android:text="Button"
+    <com.google.android.gms.common.SignInButton
+        android:id="@+id/google_sign_in_button"
+        android:layout_width="161dp"
+        android:layout_height="50dp"
+        android:layout_gravity="center"
+
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/sign_in_pager"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintVertical_bias="0.57" />
+
 
 </android.support.constraint.ConstraintLayout>
