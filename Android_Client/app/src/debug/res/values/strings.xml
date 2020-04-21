@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">Lost_Animals</string>
+    <string name="page_1">Page 1</string>
+    <string name="page_2">Page 2</string>
+    <string name="page_3">Page 3</string>
     <string name="title_activity_maps">Map</string>
 </resources>

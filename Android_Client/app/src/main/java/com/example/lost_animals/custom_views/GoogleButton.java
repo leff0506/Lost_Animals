@@ -2,9 +2,8 @@ package com.example.lost_animals.custom_views;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.widget.Button;
 
-public class GoogleButton extends android.support.v7.widget.AppCompatButton {
+public class GoogleButton extends androidx.appcompat.widget.AppCompatButton {
 
     public GoogleButton(Context context) {
         super(context);

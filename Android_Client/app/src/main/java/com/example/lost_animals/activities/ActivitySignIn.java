@@ -1,15 +1,12 @@
 package com.example.lost_animals.activities;
 
-import android.support.v4.app.Fragment;
+import androidx.fragment.app.Fragment;
 import android.os.Bundle;
 
 import com.example.lost_animals.R;
 import com.example.lost_animals.fragments.FragmentSignIn;
 
 import com.example.lost_animals.fragments.SingleFragmentActivity;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class ActivitySignIn extends SingleFragmentActivity {
 
