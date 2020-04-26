@@ -6,6 +6,11 @@ public class MarkerInfo {
     LatLng latLng;
     String url;
 
+
+    public void setLatLng(LatLng latLng) {
+        this.latLng = latLng;
+    }
+
     public LatLng getLatLng() {
         return latLng;
     }
@@ -15,7 +20,10 @@ public class MarkerInfo {
     }
 
     public MarkerInfo(LatLng latLng, String url) {
-        this.latLng = latLng;
+        this.latLng=latLng;
         this.url = url;
+    }
+    public MarkerInfo(String url){
+        this(new LatLng(0,0),url);
     }
 }

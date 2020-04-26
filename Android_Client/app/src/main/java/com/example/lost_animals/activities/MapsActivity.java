@@ -40,6 +40,8 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 
+
+
 import java.util.List;
 
 
@@ -49,13 +51,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private GoogleMap mMap;
     Location mLastLocation;
-    Marker mCurrLocationMarker;
+    MarkerInfo mCurrLocationMarker = new MarkerInfo("https://smaller-pictures.appspot.com/images/dreamstime_xxl_65780868_small.jpg");
     GoogleApiClient mGoogleApiClient;
     LocationRequest mLocationRequest;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
         setContentView(R.layout.activity_maps);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -81,15 +85,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mMap.setMyLocationEnabled(true);
         }
 
-        addMarkersFromDatabse();
-    }
-    private void addMarkersFromDatabse(){
-        List<MarkerInfo> markerInfos = DataBaseConnection.getMarkerUrls();
-        for(MarkerInfo markerInfo : markerInfos){
-            GoogleMarkerAddition.addMarker(mMap,markerInfo);
-        }
 
     }
+
     protected synchronized void buildGoogleApiClient() {
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
@@ -121,15 +119,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onLocationChanged(Location location) {
 
-        mLastLocation = location;
-        if (mCurrLocationMarker != null) {
-            mCurrLocationMarker.remove();
-        }
+        mMap.clear();
         //Place current location marker
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+        DataBaseConnection.setMarkers(mMap,this,latLng,2000);
         // Make here function to update real market
 //        GoogleMarkerAddition.addMarker(mMap,latLng,"https://smaller-pictures.appspot.com/images/dreamstime_xxl_65780868_small.jpg");
-
+        mCurrLocationMarker.setLatLng(latLng);
+        GoogleMarkerAddition.addMarker(mMap,mCurrLocationMarker);
         //move map camera
         mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
         mMap.animateCamera(CameraUpdateFactory.zoomTo(11));
@@ -138,6 +135,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if (mGoogleApiClient != null) {
             LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
         }
+
 
     }
 
