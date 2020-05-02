@@ -3,9 +3,14 @@ package com.example.lost_animals.data_base;
 import com.google.android.gms.maps.model.LatLng;
 
 public class MarkerInfo {
-    LatLng latLng;
-    String url;
+    private LatLng latLng;
+    private String url;
 
+    public boolean isDraggable() {
+        return draggable;
+    }
+
+    private boolean draggable;
 
     public void setLatLng(LatLng latLng) {
         this.latLng = latLng;
@@ -19,11 +24,12 @@ public class MarkerInfo {
         return url;
     }
 
-    public MarkerInfo(LatLng latLng, String url) {
+    public MarkerInfo(LatLng latLng, String url,boolean gradable) {
         this.latLng=latLng;
         this.url = url;
+        this.draggable = gradable;
     }
-    public MarkerInfo(String url){
-        this(new LatLng(0,0),url);
+    public MarkerInfo(String url,boolean gradable){
+        this(new LatLng(0,0),url,gradable);
     }
 }

@@ -11,6 +11,8 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -31,13 +33,22 @@ public class AddPostActivity extends Activity {
     public static String START_BY_CAMERA = "START_BY_CAMERA";
     public static String START_BY_GALLERY = "START_BY_GALLERY";
     private ImageView post_image;
+    private Button choose_location_button;
+    private View.OnClickListener on_choose_location_button_click_listener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            Intent intent = new Intent(AddPostActivity.this,ChooseLocationActivity.class);
+            startActivity(intent);
+
+        }
+    };
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_post);
         post_image = findViewById(R.id.post_image);
-
-
+        choose_location_button = findViewById(R.id.bt_choose_location);
+        choose_location_button.setOnClickListener(on_choose_location_button_click_listener);
 
         Bundle extras = getIntent().getExtras();
         String key = extras.getString("KEY");

@@ -61,7 +61,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private GoogleMap mMap;
     private Location mLastLocation;
-    private MarkerInfo mCurrLocationMarker = new MarkerInfo("https://smaller-pictures.appspot.com/images/dreamstime_xxl_65780868_small.jpg");
+    private MarkerInfo mCurrLocationMarker = new MarkerInfo("https://smaller-pictures.appspot.com/images/dreamstime_xxl_65780868_small.jpg",false);
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
     private Button add_post_button;
@@ -75,8 +75,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        requestLocationPermission();
         setContentView(R.layout.google_map);
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -156,7 +157,39 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
     }
+    private void  requestLocationPermission(){
+        Dexter.withActivity(this)
+                .withPermissions(
+                        Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION)
+                .withListener(new MultiplePermissionsListener() {
+                    @Override
+                    public void onPermissionsChecked(MultiplePermissionsReport report) {
+                        // check if all permissions are granted
+                        if (report.areAllPermissionsGranted()) {
+                            Toast.makeText(getApplicationContext(), "Location permission is granted by user!", Toast.LENGTH_SHORT).show();
+                        }
 
+                        // check for permanent denial of any permission
+                        if (report.isAnyPermissionPermanentlyDenied()) {
+                            // show alert dialog navigating to Settings
+                            //openSettingsDialog();
+                        }
+                    }
+
+                    @Override
+                    public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
+                        token.continuePermissionRequest();
+                    }
+                }).
+                withErrorListener(new PermissionRequestErrorListener() {
+                    @Override
+                    public void onError(DexterError error) {
+                        Toast.makeText(getApplicationContext(), "Some Error! ", Toast.LENGTH_LONG).show();
+                    }
+                })
+                .onSameThread()
+                .check();
+    }
     private void  requestMultiplePermissions(){
         Dexter.withActivity(this)
                 .withPermissions(

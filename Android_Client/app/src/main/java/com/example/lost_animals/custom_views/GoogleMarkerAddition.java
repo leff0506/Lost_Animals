@@ -26,19 +26,22 @@ import java.io.InputStream;
 
 public class GoogleMarkerAddition {
     public static void addMarker(GoogleMap map, MarkerInfo markerInfo){
-        new GoogleMarkerAddition.GetImageFromUrl(map,markerInfo.getLatLng()).execute(markerInfo.getUrl());
+        new GoogleMarkerAddition.GetImageFromUrl(map,markerInfo).execute(markerInfo.getUrl());
     }
     public static class GetImageFromUrl extends AsyncTask<String, Void, Bitmap> {
         GoogleMap map;
         Bitmap bitmap;
-        LatLng latLng;
-        public GetImageFromUrl(  GoogleMap map, LatLng latLng){
+        MarkerInfo markerInfo;
+        public GetImageFromUrl(  GoogleMap map, MarkerInfo markerInfo){
             this.map = map;
-            this.latLng =latLng;
+            this.markerInfo =markerInfo;
         }
         @Override
         protected Bitmap doInBackground(String... url) {
             String stringUrl = url[0];
+            if(stringUrl == null){
+                return null;
+            }
             bitmap = null;
             InputStream inputStream;
             try {
@@ -53,14 +56,19 @@ public class GoogleMarkerAddition {
         protected void onPostExecute(Bitmap bitmap){
             super.onPostExecute(bitmap);
             MarkerOptions markerOptions = new MarkerOptions();
-            markerOptions.position(latLng);
-
+            markerOptions.position(markerInfo.getLatLng());
+            if(bitmap == null){
+                markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
+                map.addMarker(markerOptions);
+                return;
+            }
             int height = 100;
             int width = 100;
             Bitmap smallMarker = Bitmap.createScaledBitmap(bitmap, width, height, false);
             smallMarker = BitmapTransformation.createRoundedRectBitmap(smallMarker,50,50,50,50);
             smallMarker = BitmapTransformation.getRoundedCornerBitmap(smallMarker, Color.MAGENTA,4);
             markerOptions.icon(BitmapDescriptorFactory.fromBitmap(smallMarker));
+            markerOptions.draggable(markerInfo.isDraggable());
             map.addMarker(markerOptions);
         }
 

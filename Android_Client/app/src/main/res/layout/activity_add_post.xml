@@ -8,5 +8,24 @@
         android:id="@+id/post_image"
         android:layout_height="match_parent"
         android:adjustViewBounds="true"
+        android:layout_weight="3"
         />
+    <EditText
+        android:id="@+id/et_description"
+        android:inputType="textMultiLine"
+        android:lines="8"
+        android:minLines="6"
+        android:gravity="top|left"
+        android:maxLines="10"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:layout_weight="3"
+        android:hint="@string/description"
+        android:scrollbars= "vertical"/>
+    <Button
+        android:id="@+id/bt_choose_location"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        />
+    
 </LinearLayout>

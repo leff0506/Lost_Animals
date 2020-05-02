@@ -40,7 +40,7 @@ public class DataBaseConnection {
                             for(int i = 0 ; i < jsonArray.length(); i ++){
                                 JSONObject marker_info_json = jsonArray.getJSONObject(i);
                                 LatLng latLng1 = new LatLng(marker_info_json.getDouble("latitude"),marker_info_json.getDouble("longitude"));
-                                MarkerInfo markerInfo = new MarkerInfo(latLng1,marker_info_json.getString("url"));
+                                MarkerInfo markerInfo = new MarkerInfo(latLng1,marker_info_json.getString("url"),false);
                                 GoogleMarkerAddition.addMarker(map,markerInfo);
                             }
                         } catch (JSONException e) {
