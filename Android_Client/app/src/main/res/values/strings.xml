@@ -1,4 +1,11 @@
 <resources>
     <string name="app_name">Lost Animals</string>
     <string name="title_activity_maps">Map</string>
+    <string name="add_post">Add post</string>
+    <string name="description">Description</string>
+    
+    <string name="continue_bt">Continue</string>
+    <string name="back">back</string>
+    <string name="next">next</string>
+    <string name="update">Update</string>
 </resources>
