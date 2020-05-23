@@ -57,3 +57,7 @@ def get_all_posts_by_dist(distance_in_metres, latitude, longitude):
         if measure(lat1=latitude, lon1 = longitude, lat2 = lat, lon2 = lon) <= distance_in_metres:
             result.append(resp)
     return result
+
+def add_post(description, latitude,longitude,image_base_64):
+    request = "INSERT INTO `posts` (`id`, `latitude`, `longitude`, `url`, `description`) VALUES (NULL, '{}', '{}', '{}','{}');".format(latitude,longitude,image_base_64,description)
+    execute_with_commit(request)
