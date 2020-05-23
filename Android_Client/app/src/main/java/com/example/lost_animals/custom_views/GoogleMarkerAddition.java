@@ -15,6 +15,7 @@ import android.os.AsyncTask;
 
 import androidx.annotation.NonNull;
 
+import com.example.lost_animals.data_base.DataBaseConnection;
 import com.example.lost_animals.data_base.MarkerInfo;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -26,7 +27,33 @@ import java.io.InputStream;
 
 public class GoogleMarkerAddition {
     public static void addMarker(GoogleMap map, MarkerInfo markerInfo){
-        new GoogleMarkerAddition.GetImageFromUrl(map,markerInfo).execute(markerInfo.getUrl());
+        if (markerInfo.getUrl().startsWith("http")){
+            new GoogleMarkerAddition.GetImageFromUrl(map,markerInfo).execute(markerInfo.getUrl());
+        }else{
+            addMarkerBase64(map,markerInfo);
+        }
+
+    }
+    private static void addMarkerBase64(GoogleMap map, MarkerInfo markerInfo){
+        Bitmap bitmap = DataBaseConnection.base64ToImage(markerInfo.getUrl());
+        process(map,markerInfo,bitmap);
+    }
+    private static void process(GoogleMap map, MarkerInfo markerInfo,Bitmap bitmap){
+        MarkerOptions markerOptions = new MarkerOptions();
+        markerOptions.position(markerInfo.getLatLng());
+        if(bitmap == null){
+            markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
+            map.addMarker(markerOptions);
+            return;
+        }
+        int height = 100;
+        int width = 100;
+        Bitmap smallMarker = Bitmap.createScaledBitmap(bitmap, width, height, false);
+        smallMarker = BitmapTransformation.createRoundedRectBitmap(smallMarker,50,50,50,50);
+        smallMarker = BitmapTransformation.getRoundedCornerBitmap(smallMarker, Color.MAGENTA,4);
+        markerOptions.icon(BitmapDescriptorFactory.fromBitmap(smallMarker));
+        markerOptions.draggable(markerInfo.isDraggable());
+        map.addMarker(markerOptions);
     }
     public static class GetImageFromUrl extends AsyncTask<String, Void, Bitmap> {
         GoogleMap map;
@@ -55,6 +82,7 @@ public class GoogleMarkerAddition {
         @Override
         protected void onPostExecute(Bitmap bitmap){
             super.onPostExecute(bitmap);
+
             MarkerOptions markerOptions = new MarkerOptions();
             markerOptions.position(markerInfo.getLatLng());
             if(bitmap == null){

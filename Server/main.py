@@ -5,7 +5,7 @@ import database.DBEngine as db
 app = Flask(__name__)
 # CORS(app, resources={
 #     r"/*": {
-#         # "origins": ["http://localhost:8000", "https://blor-brain.appspot.com"],
+#         # "origins": ["http://localhost:8000", ],
 #         "methods": ["POST","GET"],
 #         "allow_headers": ["Content-Type"]
 #     }

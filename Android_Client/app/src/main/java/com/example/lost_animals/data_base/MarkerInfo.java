@@ -24,10 +24,10 @@ public class MarkerInfo {
         return url;
     }
 
-    public MarkerInfo(LatLng latLng, String url,boolean gradable) {
+    public MarkerInfo(LatLng latLng, String url,boolean draggable) {
         this.latLng=latLng;
         this.url = url;
-        this.draggable = gradable;
+        this.draggable = draggable;
     }
     public MarkerInfo(String url,boolean gradable){
         this(new LatLng(0,0),url,gradable);

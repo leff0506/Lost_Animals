@@ -59,17 +59,26 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         LocationListener, GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener{
 
-    private GoogleMap mMap;
+    private  static GoogleMap mMap;
     private Location mLastLocation;
-    private MarkerInfo mCurrLocationMarker = new MarkerInfo("https://smaller-pictures.appspot.com/images/dreamstime_xxl_65780868_small.jpg",false);
+    private static  MarkerInfo mCurrLocationMarker = new MarkerInfo("https://smaller-pictures.appspot.com/images/dreamstime_xxl_65780868_small.jpg",false);
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
     private Button add_post_button;
+    private Button update_button;
+    private static boolean started = false;
+    public static Context context;
     View.OnClickListener onAddPostClickListener =new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             requestMultiplePermissions();
             selectImage(MapsActivity.this);
+        }
+    };
+    View.OnClickListener onUpdateButtonClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            updatePosts();
         }
     };
     @Override
@@ -84,25 +93,30 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         add_post_button = findViewById(R.id.bt_add_post);
         add_post_button.setOnClickListener(onAddPostClickListener);
 
+        update_button = findViewById(R.id.bt_update_posts);
+        update_button.setOnClickListener(onUpdateButtonClickListener);
+        context = this;
         mapFragment.getMapAsync(this);
 
     }
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (ContextCompat.checkSelfPermission(this,
                     Manifest.permission.ACCESS_FINE_LOCATION)
                     == PackageManager.PERMISSION_GRANTED) {
                 buildGoogleApiClient();
                 mMap.setMyLocationEnabled(true);
             }
-        }
-        else {
-            buildGoogleApiClient();
-            mMap.setMyLocationEnabled(true);
-        }
+
+//        }
+//        else {
+//            buildGoogleApiClient();
+//            mMap.setMyLocationEnabled(true);
+//        }
 
 
     }
@@ -131,6 +145,27 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        if (!started){
+            started = true;
+        }else{
+//            Toast.makeText(getApplicationContext(), "Hi you are back", Toast.LENGTH_SHORT).show();
+            updatePosts();
+        }
+
+    }
+
+    public static void updatePosts(){
+        mMap.clear();
+        DataBaseConnection.setMarkers(mMap,context,mCurrLocationMarker.getLatLng(),2000);
+
+        GoogleMarkerAddition.addMarker(mMap,mCurrLocationMarker);
+        //move map camera
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(mCurrLocationMarker.getLatLng()));
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(20));
+    }
+    @Override
     public void onConnectionSuspended(int i) {
 
     }
@@ -141,14 +176,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.clear();
         //Place current location marker
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+        mCurrLocationMarker.setLatLng(latLng);
 //        DataBaseConnection.setMarkers(mMap,this,latLng,2000);
+        updatePosts();
         // Make here function to update real market
 //        GoogleMarkerAddition.addMarker(mMap,latLng,"https://smaller-pictures.appspot.com/images/dreamstime_xxl_65780868_small.jpg");
-        mCurrLocationMarker.setLatLng(latLng);
-        GoogleMarkerAddition.addMarker(mMap,mCurrLocationMarker);
-        //move map camera
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(11));
+
+
 
         //stop location updates
         if (mGoogleApiClient != null) {

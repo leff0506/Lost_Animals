@@ -11,14 +11,31 @@
         android:layout_weight="1"
         tools:context=".activities.MapsActivity"
         android:layout_height="match_parent" />
-    <Button
-        android:id="@+id/bt_add_post"
-        android:layout_width="150dp"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/add_post"
-        android:textAllCaps="false"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp"
-        android:layout_gravity="center_vertical|center_horizontal"
-        />
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/bt_add_post"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:text="@string/add_post"
+            android:textAllCaps="false"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:layout_gravity="center_vertical|center_horizontal"
+            />
+        <Button
+            android:id="@+id/bt_update_posts"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:text="@string/update"
+            android:textAllCaps="false"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:layout_gravity="center_vertical|center_horizontal"
+            />
+    </LinearLayout>
+
 </LinearLayout>

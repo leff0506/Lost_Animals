@@ -21,6 +21,7 @@ public class AddPostButtonListener implements View.OnClickListener {
         Toast.makeText(activity,"Add Post",Toast.LENGTH_SHORT).show();
         Intent intent = new Intent(activity, AddPostActivity.class);
         activity.startActivity(intent);
+
     }
 
 }

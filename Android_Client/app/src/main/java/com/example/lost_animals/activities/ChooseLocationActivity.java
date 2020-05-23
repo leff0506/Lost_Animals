@@ -1,19 +1,26 @@
 package com.example.lost_animals.activities;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.ContactsContract;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.example.lost_animals.R;
 import com.example.lost_animals.custom_views.GoogleMarkerAddition;
+import com.example.lost_animals.data_base.DataBaseConnection;
 import com.example.lost_animals.data_base.MarkerInfo;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -25,6 +32,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.MultiplePermissionsReport;
 import com.karumi.dexter.PermissionToken;
@@ -40,7 +48,38 @@ public class ChooseLocationActivity extends FragmentActivity implements OnMapRea
     private GoogleMap mMap;
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
-    private MarkerInfo mCurrLocationMarker = new MarkerInfo("https://smaller-pictures.appspot.com/images/dreamstime_xxl_65780868_small.jpg",false);
+    private String description;
+    public static String DESCRIPTION_KEY = "DESCRIPTION_KEY";
+    public static String IMAGE_KEY = "IMAGE_KEY";
+    public static String RESULT_CODE = "RESULT_CODE";
+    private MarkerInfo mCurrLocationMarker ;
+    private Button back;
+    private Button next;
+    private Bitmap image;
+
+    private View.OnClickListener backOnCLickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            Intent intent = new Intent();
+            intent.putExtra(RESULT_CODE, "again");
+            setResult(RESULT_OK, intent);
+            finish();
+        }
+    };
+    private View.OnClickListener nextOnCLickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            DataBaseConnection.addPost(description,image,mCurrLocationMarker.getLatLng(),ChooseLocationActivity.this);
+            MapsActivity.updatePosts();
+
+            Intent intent = new Intent();
+            intent.putExtra(RESULT_CODE, "exit");
+            setResult(RESULT_OK, intent);
+            finish();
+//            getParent().finish();
+
+        }
+    };
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -50,6 +89,16 @@ public class ChooseLocationActivity extends FragmentActivity implements OnMapRea
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map_choose_location);
+        back = findViewById(R.id.bt_back_choose_location);
+        back.setOnClickListener(backOnCLickListener);
+        next = findViewById(R.id.bt_next_choose_location);
+        next.setOnClickListener(nextOnCLickListener);
+
+
+        Bundle extras = getIntent().getExtras();
+        description = extras.getString(DESCRIPTION_KEY);
+        image = (Bitmap)getIntent().getParcelableExtra(IMAGE_KEY);
+        mCurrLocationMarker = new MarkerInfo(DataBaseConnection.imageToBase64(image),true);
 
 
         mapFragment.getMapAsync(this);
@@ -66,11 +115,7 @@ public class ChooseLocationActivity extends FragmentActivity implements OnMapRea
                             Toast.makeText(getApplicationContext(), "Location permission is granted by user!", Toast.LENGTH_SHORT).show();
                         }
 
-                        // check for permanent denial of any permission
-                        if (report.isAnyPermissionPermanentlyDenied()) {
-                            // show alert dialog navigating to Settings
-                            //openSettingsDialog();
-                        }
+
                     }
 
                     @Override
@@ -91,18 +136,19 @@ public class ChooseLocationActivity extends FragmentActivity implements OnMapRea
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (ContextCompat.checkSelfPermission(this,
                     Manifest.permission.ACCESS_FINE_LOCATION)
                     == PackageManager.PERMISSION_GRANTED) {
                 buildGoogleApiClient();
                 mMap.setMyLocationEnabled(true);
             }
-        }
-        else {
-            buildGoogleApiClient();
-            mMap.setMyLocationEnabled(true);
-        }
+//        }
+//        else {
+//            buildGoogleApiClient();
+//            mMap.setMyLocationEnabled(true);
+//        }
+        mMap.setOnMarkerDragListener(dragListener);
     }
     protected synchronized void buildGoogleApiClient() {
         mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -136,7 +182,22 @@ public class ChooseLocationActivity extends FragmentActivity implements OnMapRea
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
     }
+    GoogleMap.OnMarkerDragListener dragListener = new GoogleMap.OnMarkerDragListener() {
+        @Override
+        public void onMarkerDragStart(Marker marker) {
 
+        }
+
+        @Override
+        public void onMarkerDrag(Marker marker) {
+
+        }
+
+        @Override
+        public void onMarkerDragEnd(Marker marker) {
+            mCurrLocationMarker.setLatLng(marker.getPosition());
+        }
+    };
     @Override
     public void onLocationChanged(Location location) {
 
@@ -148,7 +209,7 @@ public class ChooseLocationActivity extends FragmentActivity implements OnMapRea
 
         //move map camera
         mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(11));
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(20));
 
         //stop location updates
         if (mGoogleApiClient != null) {

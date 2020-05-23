@@ -8,11 +8,13 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -33,15 +35,30 @@ public class AddPostActivity extends Activity {
     public static String START_BY_CAMERA = "START_BY_CAMERA";
     public static String START_BY_GALLERY = "START_BY_GALLERY";
     private ImageView post_image;
+    private EditText etDescription;
+
     private Button choose_location_button;
     private View.OnClickListener on_choose_location_button_click_listener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             Intent intent = new Intent(AddPostActivity.this,ChooseLocationActivity.class);
-            startActivity(intent);
+            intent.putExtra(ChooseLocationActivity.DESCRIPTION_KEY, etDescription.getText().toString());
+            BitmapDrawable drawable = (BitmapDrawable) post_image.getDrawable();
+            Bitmap bitmap = drawable.getBitmap();
+            intent.putExtra(ChooseLocationActivity.IMAGE_KEY, bitmap);
+            startActivityForResult(intent, 1);
 
         }
     };
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (data == null) {return;}
+        String name = data.getStringExtra(ChooseLocationActivity.RESULT_CODE);
+        if (name.equals("exit")){
+            finish();
+        }
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,6 +66,8 @@ public class AddPostActivity extends Activity {
         post_image = findViewById(R.id.post_image);
         choose_location_button = findViewById(R.id.bt_choose_location);
         choose_location_button.setOnClickListener(on_choose_location_button_click_listener);
+        etDescription = findViewById(R.id.et_description);
+
 
         Bundle extras = getIntent().getExtras();
         String key = extras.getString("KEY");
