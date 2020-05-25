@@ -20,6 +20,7 @@ import com.example.lost_animals.custom_views.AddPostButtonListener;
 import com.example.lost_animals.custom_views.GoogleMarkerAddition;
 import com.example.lost_animals.data_base.DataBaseConnection;
 import com.example.lost_animals.data_base.MarkerInfo;
+import com.example.lost_animals.data_base.ServerSettings;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -34,6 +35,7 @@ import android.location.Location;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,6 +46,7 @@ import android.widget.Toast;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.maps.model.Marker;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.MultiplePermissionsReport;
 import com.karumi.dexter.PermissionToken;
@@ -57,22 +60,39 @@ import java.util.List;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
         LocationListener, GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener{
+        GoogleApiClient.OnConnectionFailedListener, GoogleMap.OnMarkerClickListener {
 
     private  static GoogleMap mMap;
     private Location mLastLocation;
-    private static  MarkerInfo mCurrLocationMarker = new MarkerInfo("https://smaller-pictures.appspot.com/images/dreamstime_xxl_65780868_small.jpg",false);
+    private static  MarkerInfo mCurrLocationMarker = new MarkerInfo("",false);
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
     private Button add_post_button;
     private Button update_button;
+    private Button favourites;
+    private Button settings;
     private static boolean started = false;
     public static Context context;
+    private static final String TAG = "MapsActivity";
     View.OnClickListener onAddPostClickListener =new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             requestMultiplePermissions();
             selectImage(MapsActivity.this);
+        }
+    };
+    View.OnClickListener onFavouritesOnCLickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            Intent intent = new Intent(MapsActivity.this,Favourites.class);
+            startActivity(intent);
+        }
+    };
+    View.OnClickListener onSettingsOnCLickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            Intent intent = new Intent(MapsActivity.this, SettingsActivity.class);
+            startActivity(intent);
         }
     };
     View.OnClickListener onUpdateButtonClickListener = new View.OnClickListener() {
@@ -84,19 +104,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        requestLocationPermission();
+
         setContentView(R.layout.google_map);
-
+        Log.i(TAG,"Trying to get all necessary permissions.");
+        requestLocationPermission();
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
-        add_post_button = findViewById(R.id.bt_add_post);
-        add_post_button.setOnClickListener(onAddPostClickListener);
 
-        update_button = findViewById(R.id.bt_update_posts);
-        update_button.setOnClickListener(onUpdateButtonClickListener);
-        context = this;
-        mapFragment.getMapAsync(this);
 
     }
 
@@ -111,7 +124,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 buildGoogleApiClient();
                 mMap.setMyLocationEnabled(true);
             }
-
+        mMap.setOnMarkerClickListener(this);
 //        }
 //        else {
 //            buildGoogleApiClient();
@@ -160,7 +173,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.clear();
         DataBaseConnection.setMarkers(mMap,context,mCurrLocationMarker.getLatLng(),2000);
 
-        GoogleMarkerAddition.addMarker(mMap,mCurrLocationMarker);
+//        GoogleMarkerAddition.addMarker(mMap,mCurrLocationMarker);
         //move map camera
         mMap.moveCamera(CameraUpdateFactory.newLatLng(mCurrLocationMarker.getLatLng()));
         mMap.animateCamera(CameraUpdateFactory.zoomTo(20));
@@ -172,7 +185,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onLocationChanged(Location location) {
-
+        Log.i(TAG,"Location changed.");
         mMap.clear();
         //Place current location marker
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
@@ -194,13 +207,31 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private void  requestLocationPermission(){
         Dexter.withActivity(this)
                 .withPermissions(
-                        Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION)
+                        Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION,Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                        Manifest.permission.READ_EXTERNAL_STORAGE)
                 .withListener(new MultiplePermissionsListener() {
                     @Override
                     public void onPermissionsChecked(MultiplePermissionsReport report) {
                         // check if all permissions are granted
                         if (report.areAllPermissionsGranted()) {
-                            Toast.makeText(getApplicationContext(), "Location permission is granted by user!", Toast.LENGTH_SHORT).show();
+                            Log.i(TAG,"Permissions are granted.");
+//                            Toast.makeText(getApplicationContext(), "Location permission is granted by user!", Toast.LENGTH_SHORT).show();
+                            SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                                    .findFragmentById(R.id.map);
+                            add_post_button = findViewById(R.id.bt_add_post);
+                            add_post_button.setOnClickListener(onAddPostClickListener);
+
+                            update_button = findViewById(R.id.bt_update_posts);
+                            update_button.setOnClickListener(onUpdateButtonClickListener);
+
+                            favourites = findViewById(R.id.favourites);
+                            favourites.setOnClickListener(onFavouritesOnCLickListener);
+
+                            settings = findViewById(R.id.settings);
+                            settings.setOnClickListener(onSettingsOnCLickListener);
+                            context = MapsActivity.this;
+                            Log.i(TAG,"Download the map.");
+                            mapFragment.getMapAsync(MapsActivity.this);
                         }
 
                         // check for permanent denial of any permission
@@ -260,11 +291,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .check();
     }
     private void selectImage(Context context) {
-        final CharSequence[] options = { "Take Photo", "Choose from Gallery","Cancel" };
-
+//        final CharSequence[] options = { "Take Photo", "Choose from Gallery","Cancel" };
+        final CharSequence[] options = { "Take Photo","Cancel" };
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setTitle("Choose your profile picture");
-
+//        builder.setTitle("Choose your profile picture");
+        Log.i(TAG,"Selecting image.");
         builder.setItems(options, new DialogInterface.OnClickListener() {
 
             @Override
@@ -322,5 +353,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
 
+    }
+
+    @Override
+    public boolean onMarkerClick(Marker marker) {
+
+        if (DataBaseConnection.markers.containsKey(marker)){
+
+            Intent intent = new Intent(MapsActivity.this,PostActivity.class);
+            MarkerInfo markerInfo = DataBaseConnection.markers.get(marker);
+            intent.putExtra(PostActivity.IMAGE_KEY,markerInfo.getUrl());
+            intent.putExtra(PostActivity.DESCRIPTION_KEY,markerInfo.getDescription());
+            intent.putExtra(PostActivity.ID_KEY,markerInfo.getId());
+            intent.putExtra(PostActivity.FAVOURITE_VISIBLE_KEY,true);
+            Log.i(TAG,"Marker "+marker.getId()+" clicked.");
+            startActivity(intent);
+        }
+        return false;
     }
 }

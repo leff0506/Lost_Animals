@@ -31,13 +31,17 @@ import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 
 import java.util.List;
 
+
+
 public class AddPostActivity extends Activity {
     public static String START_BY_CAMERA = "START_BY_CAMERA";
     public static String START_BY_GALLERY = "START_BY_GALLERY";
     private ImageView post_image;
     private EditText etDescription;
-
+    private boolean fromCamera = true;
     private Button choose_location_button;
+    private Uri selectedImage;
+    private String picturePath;
     private View.OnClickListener on_choose_location_button_click_listener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -45,7 +49,12 @@ public class AddPostActivity extends Activity {
             intent.putExtra(ChooseLocationActivity.DESCRIPTION_KEY, etDescription.getText().toString());
             BitmapDrawable drawable = (BitmapDrawable) post_image.getDrawable();
             Bitmap bitmap = drawable.getBitmap();
-            intent.putExtra(ChooseLocationActivity.IMAGE_KEY, bitmap);
+            intent.putExtra(ChooseLocationActivity.CAMERA_KEY,fromCamera);
+            if (fromCamera)
+                intent.putExtra(ChooseLocationActivity.IMAGE_KEY, bitmap);
+            else{
+                intent.putExtra(ChooseLocationActivity.IMAGE_KEY, picturePath);
+            }
             startActivityForResult(intent, 1);
 
         }
@@ -75,15 +84,18 @@ public class AddPostActivity extends Activity {
             Bitmap thumbnail = (Bitmap) extras.get("Bitmap");
             post_image.setImageBitmap(thumbnail);
         }else if (key.equals(START_BY_GALLERY)){
-            Uri selectedImage = (Uri) extras.get("Bitmap_uri");
+            selectedImage = (Uri) extras.get("Bitmap_uri");
             String[] filePath = {MediaStore.Images.Media.DATA};
             Cursor c = getContentResolver().query(selectedImage, filePath, null, null, null);
+            assert c != null;
             c.moveToFirst();
             int columnIndex = c.getColumnIndex(filePath[0]);
-            String picturePath = c.getString(columnIndex);
+            picturePath = c.getString(columnIndex);
             c.close();
+
             Bitmap thumbnail = (BitmapFactory.decodeFile(picturePath));
             post_image.setImageBitmap(thumbnail);
+            fromCamera = false;
         }
 
     }

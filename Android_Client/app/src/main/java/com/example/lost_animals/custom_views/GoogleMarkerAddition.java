@@ -17,28 +17,30 @@ import androidx.annotation.NonNull;
 
 import com.example.lost_animals.data_base.DataBaseConnection;
 import com.example.lost_animals.data_base.MarkerInfo;
+import com.example.lost_animals.data_base.SharedPreferencesHelper;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.IOException;
 import java.io.InputStream;
 
 public class GoogleMarkerAddition {
-    public static void addMarker(GoogleMap map, MarkerInfo markerInfo){
+    public static void addMarker(GoogleMap map, MarkerInfo markerInfo,SharedPreferencesHelper sharedPreferencesHelper){
         if (markerInfo.getUrl().startsWith("http")){
             new GoogleMarkerAddition.GetImageFromUrl(map,markerInfo).execute(markerInfo.getUrl());
         }else{
-            addMarkerBase64(map,markerInfo);
+            addMarkerBase64(map,markerInfo,sharedPreferencesHelper);
         }
 
     }
-    private static void addMarkerBase64(GoogleMap map, MarkerInfo markerInfo){
+    private static void addMarkerBase64(GoogleMap map, MarkerInfo markerInfo,SharedPreferencesHelper sharedPreferencesHelper){
         Bitmap bitmap = DataBaseConnection.base64ToImage(markerInfo.getUrl());
-        process(map,markerInfo,bitmap);
+        process(map,markerInfo,bitmap,sharedPreferencesHelper);
     }
-    private static void process(GoogleMap map, MarkerInfo markerInfo,Bitmap bitmap){
+    private static void process(GoogleMap map, MarkerInfo markerInfo,Bitmap bitmap,SharedPreferencesHelper sharedPreferencesHelper){
         MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.position(markerInfo.getLatLng());
         if(bitmap == null){
@@ -50,10 +52,13 @@ public class GoogleMarkerAddition {
         int width = 100;
         Bitmap smallMarker = Bitmap.createScaledBitmap(bitmap, width, height, false);
         smallMarker = BitmapTransformation.createRoundedRectBitmap(smallMarker,50,50,50,50);
-        smallMarker = BitmapTransformation.getRoundedCornerBitmap(smallMarker, Color.MAGENTA,4);
+
+        smallMarker = BitmapTransformation.getRoundedCornerBitmap(smallMarker, sharedPreferencesHelper.getSettings(),4);
         markerOptions.icon(BitmapDescriptorFactory.fromBitmap(smallMarker));
         markerOptions.draggable(markerInfo.isDraggable());
-        map.addMarker(markerOptions);
+
+        Marker marker = map.addMarker(markerOptions);
+       DataBaseConnection.markers.put(marker,markerInfo);
     }
     public static class GetImageFromUrl extends AsyncTask<String, Void, Bitmap> {
         GoogleMap map;
@@ -97,7 +102,8 @@ public class GoogleMarkerAddition {
             smallMarker = BitmapTransformation.getRoundedCornerBitmap(smallMarker, Color.MAGENTA,4);
             markerOptions.icon(BitmapDescriptorFactory.fromBitmap(smallMarker));
             markerOptions.draggable(markerInfo.isDraggable());
-            map.addMarker(markerOptions);
+            Marker marker = map.addMarker(markerOptions);
+            DataBaseConnection.markers.put(marker,markerInfo);
         }
 
 

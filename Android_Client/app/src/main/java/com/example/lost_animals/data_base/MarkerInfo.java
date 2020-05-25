@@ -5,6 +5,24 @@ import com.google.android.gms.maps.model.LatLng;
 public class MarkerInfo {
     private LatLng latLng;
     private String url;
+    private String description;
+    private int id;
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
     public boolean isDraggable() {
         return draggable;
